@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.19.0",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -16,6 +17,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.553.0",
     "next": "16.0.3",
+    "next-auth": "^5.0.0-beta.30",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "tailwind-merge": "^3.4.0"

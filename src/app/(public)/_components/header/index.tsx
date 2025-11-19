@@ -11,12 +11,22 @@ import {
 import { LogIn, MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+
+import { useSession } from "next-auth/react";
+import { handleRegister } from "../../_actions/login";
+
 export function Header() {
+    const { data: session, status } = useSession();
     const [isOpen, setIsOpen] = useState(false);
-    const session = null;
+    
     const NavItems = [
         {label:"Profissionais", href:"#profissionais" }
     ]
+
+    async function handleLogin() {
+
+       await handleRegister("github");
+    }
     const NavLinks = ()=>(
         <>
         {NavItems.map((item,index)=>(
@@ -31,12 +41,12 @@ export function Header() {
                 </Link>
             </Button>
         ))}
-        {session?  (
-            <Link href="/dashboard" className="flex items-center justify-center gap-2">
+        { status ==='loading' ?<> </>: session?  (
+            <Link href="/dashboard" className="flex items-center justify-center gap-2 bg-zinc-900 py-1 text-white px-4 rounded-md hover:bg-zinc-800">
                 Acessar clinica
             </Link>
         ): (
-            <Button > 
+            <Button  onClick={handleLogin}> 
                 <LogIn />
                     Portal da Clinica
             </Button>

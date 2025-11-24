@@ -1,0 +1,24 @@
+---
+alwaysApply: false
+---
+
+Rule Name: stack-overview
+Description:
+Project stack summary and version-specific notes.
+
+# Content
+
+- Framework: Next.js 16.0.3 on React 19.2.0 / ReactDOM 19.2.0 (use React Compiler-ready patterns; prefer Server Components where possible; stay compatible with the new async rendering defaults).
+- Auth/DB: next-auth ^5.0.0-beta.30 with @auth/prisma-adapter ^2.11.1 and Prisma ^6.19.0 / @prisma/client ^6.19.0 (stick to edge-safe auth flows; keep Prisma Client regenerated after schema changes).
+- UI stack: Tailwind CSS ^4 (new config-less setup; avoid legacy `tailwind.config.js` expectations), Radix UI components (^1.1.x series) plus `class-variance-authority` and `clsx` for styling (standardize on CVA variants to keep components consistent).
+- Icons: lucide-react ^0.553.0 (tree-shake via direct icon imports).
+- Utilities: tailwind-merge ^3.4.0, tw-animate-css ^1.4.0, babel-plugin-react-compiler 1.0.0 (ensure Babel plugin stays aligned with React Compiler requirements).
+- Types/Tooling: TypeScript ^5, @types/node ^20, @types/react/@types/react-dom ^19 (enable strict mode; keep tsconfig synced with Next 16 defaults).
+
+# Best-practice notes
+
+1. Always run `prisma generate` after schema updates to keep the 6.19 client in sync.
+2. For Next 16 + React 19, prefer async/streaming server components and opt into React Compiler-compatible patterns (no `use client` unless necessary).
+3. Tailwind v4 is postcss-based; rely on the new `@tailwind` entrypoints and avoid deprecated plugin APIs.
+4. next-auth v5 beta: configure routes via the new app router handlers and keep callbacks lean to stay edge-compatible.
+5. Use tree-shaking-friendly imports for lucide-react and Radix components to minimize bundle size.

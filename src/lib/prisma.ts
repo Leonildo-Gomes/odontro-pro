@@ -1,5 +1,5 @@
 
-import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaClient } from "@/generated/client";
 
 let  prisma: PrismaClient;
 

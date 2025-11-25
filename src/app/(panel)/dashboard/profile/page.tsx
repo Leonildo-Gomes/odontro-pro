@@ -15,6 +15,6 @@ export default async function Profile() {
         return redirect("/");
     }
     return (
-       <ProfileContent />
+       <ProfileContent user={user} />
     );
 }

@@ -1,23 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from '@/components/ui/form';
-import { ProfileFormData, useProfileForm } from './profile-form';
-
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Image from 'next/image';
-import imgTeste from '../../../../../../public/foto1.png';
-
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -26,17 +10,46 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
-import { ArrowRight } from 'lucide-react';
-
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
-export function ProfileContent() {
-    const [selectedHours, setSelectedHours] = useState<string[]>([]);
+import imgTeste from '../../../../../../public/foto1.png';
+import type { UserGetPayload } from '../../../../../generated/models/User';
+import { ProfileFormData, useProfileForm } from './profile-form';
+
+
+type UserWithSubscription = UserGetPayload<{
+    include: { subscription: true };
+}>;
+interface ProfileContentProps {
+    user:UserWithSubscription ;
+}
+
+
+export function ProfileContent({user}: ProfileContentProps) {
+    const [selectedHours, setSelectedHours] = useState<string[]>(user.times || []);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
 
-
-    const form = useProfileForm();
+    const form = useProfileForm({
+        name: user.name,
+        address: user.address,
+        phone: user.phone,
+        status: user.status,
+        timezone: user.timezone,
+    });
     function generateTimeSlots(): string[] {
         const hours: string[] = [];
 
@@ -63,7 +76,6 @@ export function ProfileContent() {
             selectedHours,
 
         }
-        console.log(profileData);
     }
 
     return (
@@ -77,7 +89,7 @@ export function ProfileContent() {
                         <CardContent className='space-y-6'>
                             <div className='flex justify-center'>
                                 <div className=' bg-gray-200 relative h-40 w-40 rounded-full overflow-hidden'>
-                                    <Image src={imgTeste}
+                                    <Image src={user.image ? user.image : imgTeste}
                                         alt="foto de perfil"
                                         fill
                                         className="object-contain"

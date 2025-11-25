@@ -11,7 +11,7 @@ export async function getInfoUser({userId}: GetInfoUserProps) {
                 id: userId
             },
             include: {
-                subcription: true
+                subscription: true
             }
         });
         

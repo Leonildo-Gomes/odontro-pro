@@ -25,11 +25,13 @@ import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import imgTeste from '../../../../../../public/foto1.png';
 import type { UserGetPayload } from '../../../../../generated/models/User';
+import { updateProfileAction } from '../_actions/update-profile';
 import { ProfileFormData, useProfileForm } from './profile-form';
 
-
+import { formatPhone, unformatPhone } from '@/utils/formatPhone';
 type UserWithSubscription = UserGetPayload<{
     include: { subscription: true };
 }>;
@@ -71,11 +73,28 @@ export function ProfileContent({user}: ProfileContentProps) {
         setSelectedHours((prev)=> prev.includes(hour) ? prev.filter(h => h !== hour) : [...prev, hour]);
     }
     async function onSubmit( values : ProfileFormData) {
-        const profileData= {
+        /*const profileData= {
             ...values,
             selectedHours,
 
+        }*/
+       const phone = unformatPhone(values.phone || '');
+        const response = await updateProfileAction({
+           name:values.name,
+           address: values.address,
+           phone: phone,
+           status: values.status === 'active' ? true : false,
+           timezone: values.timezone,
+           times: selectedHours || [],
+    
+        });
+        if (response.error) {
+            toast.error(response.error,{closeButton: true});
+            return;
         }
+        toast.success(response.data,{closeButton: true});
+
+        console.log("Profile updated:", response);
     }
 
     return (
@@ -130,7 +149,11 @@ export function ProfileContent({user}: ProfileContentProps) {
                                         <FormItem>
                                             <FormLabel className='font-semibold'>Telefone</FormLabel>
                                             <FormControl>
-                                                <Input {...field}  placeholder='Digite o telefone da clinica...'/>
+                                                <Input 
+                                                    {...field}  
+                                                    placeholder='(67) 99999-9999'
+                                                    onChange={(e) => field.onChange(formatPhone(e.target.value))}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}

@@ -22,16 +22,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { formatPhone, unformatPhone } from '@/utils/formatPhone';
 import { ArrowRight } from 'lucide-react';
+import { signOut, useSession } from "next-auth/react";
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import imgTeste from '../../../../../../public/foto1.png';
 import type { UserGetPayload } from '../../../../../generated/models/User';
 import { updateProfileAction } from '../_actions/update-profile';
 import { ProfileFormData, useProfileForm } from './profile-form';
-
-import { formatPhone, unformatPhone } from '@/utils/formatPhone';
 type UserWithSubscription = UserGetPayload<{
     include: { subscription: true };
 }>;
@@ -43,7 +44,8 @@ interface ProfileContentProps {
 export function ProfileContent({user}: ProfileContentProps) {
     const [selectedHours, setSelectedHours] = useState<string[]>(user.times || []);
     const [dialogIsOpen, setDialogIsOpen] = useState(false);
-
+    const { update } = useSession();
+    const router= useRouter();
 
     const form = useProfileForm({
         name: user.name,
@@ -93,8 +95,12 @@ export function ProfileContent({user}: ProfileContentProps) {
             return;
         }
         toast.success(response.data,{closeButton: true});
+    }
 
-        console.log("Profile updated:", response);
+    async function handleLogOut() {
+        await signOut({ redirect: false });
+        await update();
+        router.push('/');
     }
 
     return (
@@ -266,6 +272,13 @@ export function ProfileContent({user}: ProfileContentProps) {
                     
                 </form>
             </Form>
+            <section className='mt-6'>
+                <Button variant="destructive"
+                    onClick={handleLogOut}
+                >
+                    Sair da Conta
+                </Button>
+            </section>
         </div>
     );
 }

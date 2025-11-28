@@ -17,19 +17,37 @@ import { DialogServiceFormData, useDialogServiceForm } from "./dialog-service-fo
 
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { updateServiceById } from "../_actions/update-service";
 
 interface DialogServiceProps {
     closeDialog: () => void;
+    serviceId?: string;
+    initialValues?: {
+        name: string;
+        price: string;
+        hours: string;
+        minutes: string;
+    };
 }
-export function DialogService({ closeDialog }: DialogServiceProps) {
+export function DialogService({ closeDialog, serviceId , initialValues}: DialogServiceProps) {
     const [loading, setLoading]= useState(false);
-    const form = useDialogServiceForm();
+    
+    const form = useDialogServiceForm({initialValues:initialValues});
     async function onSubmit(values: DialogServiceFormData) {
         setLoading(true);
         const price = convertRealToCents(values.price);
         const hours = values.hours !== undefined ?parseInt(values.hours) || 0: 0;
         const minutes =  values .minutes !== undefined ? parseInt(values.minutes) || 0:0;
         const duration = (hours * 60) + minutes;
+        if(serviceId){
+            await editServiceById({
+                serviceId: serviceId,
+                name: values.name,
+                priceInCents: price,
+                duration: duration,
+            });
+            return;
+        }
 
         const response= await createNewService({
             name: values.name,
@@ -46,7 +64,26 @@ export function DialogService({ closeDialog }: DialogServiceProps) {
         handleCloseDialog();
 
     }
+
+    async function editServiceById({serviceId, name, priceInCents, duration}: {serviceId: string, name: string, priceInCents: number, duration: number}) {
+        const response = await  updateServiceById({
+            serviceId: serviceId,
+            name: name,
+            price: priceInCents,
+            duration: duration,
+        })
+        if(response.error){
+            toast.error(response.error);
+            return;
+        }
+        toast.success(response.data);
+        setLoading(false);    
+        handleCloseDialog();
+        
+    }
+
     function handleCloseDialog() {
+        
         closeDialog();
         form.reset();
     } 
@@ -152,7 +189,7 @@ export function DialogService({ closeDialog }: DialogServiceProps) {
                     </div>
 
                     <Button type="submit" className="mt-4 w-full font-semibold text-white" disabled={loading}>
-                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Adicionar Servico
+                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : `${serviceId ? "Atualizar" : "Cadastrar"} Servico`} 
                     </Button>
 
                 </form>

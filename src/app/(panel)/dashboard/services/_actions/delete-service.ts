@@ -1,39 +1,40 @@
 "use server";
+
+
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const formSchema = z.object({
-    name: z.string().min(2, {message: "name must be at least 2 characters"}),
-    price: z.number().min(1, {message: "price must be at least 1"}),
-    duration : z.number(),
+   serviceId: z.string().min(1, {message: "service Id is required"}),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
-export async function createNewService(formData: FormSchema) {
+export async function deleteService( formatData : FormSchema) {
     const session = await auth();
     if(!session?.user?.id){
         return { error: "User not authenticated"};
     }
-    const schema= formSchema.safeParse(formData);
+    const schema= formSchema.safeParse(formatData);
     if(!schema.success){
         return{error: schema.error.issues[0].message };
     }
 
     try {
-        await prisma.service.create({
+        await prisma.service.update({
             data: {
-                name: formData.name,
-                price: formData.price,
-                duration: formData.duration,
+                status: false
+            },
+            where: {
+                id: formatData.serviceId,
                 userId: session.user.id
             }
         });
         revalidatePath('/dashboard/services');
-        return { data: "Service created successfully" };
+        return { data: "Service deleted successfully" };
     } catch (error) {
-        return { error: "Error creating service"};
+        return { error: "Error deleting service"};
     }
         
 }
